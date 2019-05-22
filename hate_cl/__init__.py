@@ -13,6 +13,10 @@ class HateCl:
         classified_text = self.classifier.predict_proba([text])[:, 1]
         return classified_text[0]
 
+    def get_samples(self):
+        df = Unpickler(open('hate_cl/data.sav', 'rb')).load()
+        return df
+
     def refit(self, samples):
         df = Unpickler(open('hate_cl/data.sav', 'rb')).load()
         aux_df = DataFrame(samples, columns=['hate', 'sentence'])
