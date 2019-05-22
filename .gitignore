@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+hate_cl/data.sav
+hate_cl/randomforest.sav
+

@@ -1,9 +1,10 @@
+
 import arff
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from pandas import DataFrame
-import pickle
+from pickle import Pickler
 
 
 
@@ -25,5 +26,14 @@ cl = Pipeline([('tfidf', TfidfVectorizer(ngram_range=(1, 4))),
 
 cl.fit(X, y)
 
-filename = 'randomforest.sav'
-pickle.dump(cl, open(filename, 'wb'));
+
+cl_filename = 'randomforest.sav'
+df_filename = 'data.sav'
+
+f = open(cl_filename, 'wb')
+Pickler(f).dump(cl);
+f.close()
+
+f = open(df_filename, 'wb')
+Pickler(f).dump(df);
+f.close()
