@@ -70,8 +70,9 @@ MODEL_LIST = [
 class HateCl:
     def __init__(self):
         print(pkg_resources.resource_filename('hate_cl', 'randomforest.sav'))
-        self.classifier = Unpickler(open(pkg_resources.resource_filename(
-            'hate_cl', 'randomforest.sav'), 'rb')).load()
+        classifier_file = open(pkg_resources.resource_filename(
+            'hate_cl', 'randomforest.sav'), 'rb')
+        self.classifier = Unpickler(classifier_file).load()
         self.df = self.load_df()
         self.X = self.df['sentence'].tolist()
         self.y = self.df['hate'].tolist()
@@ -79,7 +80,9 @@ class HateCl:
             self.X, self.y, test_size=0.33, random_state=42)
 
     def load_df(self):
-        data = arff.load(open('./OffComBR3.arff'))
+        off_com_file = open(pkg_resources.resource_filename(
+            'hate_cl', 'OffComBR3.arff'))
+        data = arff.load(off_com_file)
         df = DataFrame(data['data'])
         df.columns = ['hate', 'sentence']
         df['hate'] = df['hate'].apply(lambda x: 1 if x == 'yes' else 0)
@@ -90,11 +93,13 @@ class HateCl:
         return classified_text[0]
 
     def get_samples(self):
-        df = Unpickler(open('hate_cl/data.sav', 'rb')).load()
+        df = Unpickler(open(pkg_resources.resource_filename(
+            'hate_cl', 'hate_cl/data.sav', 'rb'))).load()
         return df
 
     def refit(self, samples):
-        df = Unpickler(open('hate_cl/data.sav', 'rb')).load()
+        df = Unpickler(open(pkg_resources.resource_filename(
+            'hate_cl', 'hate_cl/data.sav', 'rb'))).load()
         aux_df = DataFrame(samples, columns=['hate', 'sentence'])
         df = df.append(aux_df, ignore_index=True)
         print(df)
@@ -109,8 +114,8 @@ class HateCl:
                                                min_weight_fraction_leaf=0))])
         cl.fit(X, y)
         self.classifier = cl
-        cl_filename = 'hate_cl/randomforest.sav'
-        df_filename = 'hate_cl/data.sav'
+        cl_filename = pkg_resources.resource_filename('hate_cl','hate_cl/randomforest.sav')
+        df_filename = pkg_resources.resource_filename('hate_cl','hate_cl/data.sav')
 
         f = open(cl_filename, 'wb')
         Pickler(f).dump(cl)
@@ -145,6 +150,7 @@ class HateCl:
             print(classification_report(self.y_test, pred))
 
             # saving cl in file
+            # TODO -> get path using pkg_resources
             cl_filename = model['model'].__class__.__name__ + 'sav'
             f = open(cl_filename, 'wb')
             Pickler(f).dump(cl)
