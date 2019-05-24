@@ -6,7 +6,7 @@ from pandas import DataFrame
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
-from sklearn.metrics import classification_report
+from sklearn.metrics import make_scorer, classification_report, precision_recall_fscore_support as score
 
 # models
 from sklearn.ensemble import RandomForestClassifier
@@ -128,10 +128,15 @@ class HateCl:
     # method that uses fit on every model with the defined dataset
     def fit_all(self, dataset):
         pass
+    
+    def get_recal_1(self, y_true, y_pred):
+        precision, recall, fscore, support = score(y_true, y_pred)
+        print(classification_report(y_true, y_pred))
+        return(recall[1])
 
     def create_best_cl(self, model, params):
         gs_clf = GridSearchCV(model, params, cv=5, iid=False,
-                              n_jobs=-1, scoring='roc_auc_score')
+                              n_jobs=-1, scoring=make_scorer(self.get_recal_1))
         gs_clf.fit(self.X_train, self.y_train)
         print(gs_clf.best_score_)
         print(gs_clf.best_params_)
@@ -150,8 +155,7 @@ class HateCl:
             print(classification_report(self.y_test, pred))
 
             # saving cl in file
-            # TODO -> get path using pkg_resources
-            cl_filename = model['model'].__class__.__name__ + 'sav'
+            cl_filename = pkg_resources.resource_filename('hate_cl', model['model'].__class__.__name__ + '.sav')
             f = open(cl_filename, 'wb')
             Pickler(f).dump(cl)
             f.close()
